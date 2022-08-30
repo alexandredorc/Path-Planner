@@ -272,14 +272,10 @@ class Graph:
         best_index = None # Index of best node found so far
 
         for i in xrange(len(self.nodes_)):
-
-            #########################
-            ## YOUR CODE GOES HERE ##
-            #########################
-
-
-
-
+            newdist=(self.nodes_[i].x-xy[0])**2+(self.nodes_[i].y-xy[1])**2
+            if best_dist>newdist:
+                best_dist=newdist
+                best_index=i     
 
 
 
@@ -494,28 +490,11 @@ class GraphSearch:
             # Select a node
             # hint: self.get_minimum_cost_node(unvisited_set) will help you find the node with the minimum cost
 
-            #########################
-            ## YOUR CODE GOES HERE ##
-            #########################
-
-
-
-
-
-
+            node_idx=self.get_minimum_cost_node(unvisited_set)
 
             # Move the selected node from the unvisited_set to the visited_set
 
-            #########################
-            ## YOUR CODE GOES HERE ##
-            #########################
-
-
-
-
-
-
-
+            visited_set.append(unvisited_set.pop(node_idx))
 
             # Termination criteria
             # Finish early (i.e. "return") if the goal is found
@@ -524,14 +503,9 @@ class GraphSearch:
             ## YOUR CODE GOES HERE  ##
             ## FIX THE IF CONDITION ##
             ##########################
-            # if ??:
-            #     rospy.loginfo("Goal found!")
-            #     return
-
-
-
-
-
+            if self.goal_idx_==node_idx:
+                rospy.loginfo("Goal found!")
+                return
 
             # For each neighbour of the node
             for neighbour_idx in xrange(len(self.graph_.nodes_[node_idx].neighbours)):
@@ -553,39 +527,19 @@ class GraphSearch:
                     # hint: implement it without the heuristic-score first. once this is working, add the heuristic score.
                     # hint: neighbour.distance_to() function is likely to be helpful for the heuristic-score
 
-                    ##########################
-                    ## YOUR CODE GOES HERE  ##
-                    ##########################
-
-
-
-
-
-
-
+                    cost= self.graph_.nodes_[node_idx].cost+neighbour_cost+(self.heuristic_weight_ *0 * neighbour.distance_to(self.graph_.nodes_[goal_idx]))
 
                     
                     # Check if neighbours is already in unvisited set
                     if neighbour.idx in unvisited_set:
 
-                        pass # you can remove this line after you've completed the following
-
                         # If the cost is lower than the previous cost for this node
                         # Then update it to the new cost
                         # Also, update the parent pointer to point to the new parent 
 
-                        ##########################
-                        ## YOUR CODE GOES HERE  ##
-                        ## FIX THE ?? BELOW     ##
-                        ##########################
-                        # if ??:
-                        #     neighbour.parent_node = ??
-                        #     neighbour.cost = ??
-
-
-
-
-
+                        if neighbour.cost < self.graph_.nodes_[neighbour_idx].cost :
+                            neighbour.parent_node = self.graph_.nodes_[neighbour_idx]
+                            neighbour.cost = self.graph_.nodes_[neighbour_idx].cost
 
 
                     else:
@@ -600,17 +554,12 @@ class GraphSearch:
                         ## YOUR CODE GOES HERE  ##
                         ## FIX THE ?? BELOW     ##
                         ##########################
-                        # neighbour.parent_node = ??
-                        # neighbour.cost = ??
-
-
-
-
-                        
+                        neighbour.parent_node = self.graph_.nodes_[neighbour_idx]
+                        neighbour.cost = self.graph_.nodes_[neighbour.idx].cost
 
             # Visualise the current search status in RVIZ
             self.visualise_search(visited_set, unvisited_set, start_idx, goal_idx)
-            # rospy.sleep(0.01) # Pause for easier visualisation
+            rospy.sleep(0.1) # Pause for easier visualisation
                    
 
     def get_minimum_cost_node(self, unvisited_set):
