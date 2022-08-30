@@ -614,9 +614,9 @@ class PathSmoother():
             for i in range(1,len(path)-1):
                 path[i].x+=alpha*path_nodes[i].x+beta*path[i-1].x+beta*path[i+1].x-(alpha+2*beta)*path[i].x
                 path[i].y+=alpha*path_nodes[i].y+beta*path[i-1].y+beta*path[i+1].y-(alpha+2*beta)*path[i].y
-
+            blocked = is_occluded(self.graph_.map_.image_, [path[i].x, path[i].y], [path[i+1].x, path[i+1].y])
             
-        blocked = is_occluded(self.graph_.map_.image_, [x1, y1], [x2, y2])
+        
 
         return path
 
