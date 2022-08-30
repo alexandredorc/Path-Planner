@@ -609,15 +609,18 @@ class PathSmoother():
 
         # Loop until the smoothing converges
         # In each iteration, update every waypoint except the first and last waypoint
-
-        for j in range(100):
+        e=1
+        blocked=True
+        while e>0.001 or blocked:
             for i in range(1,len(path)-1):
-                path[i].x+=alpha*path_nodes[i].x+beta*path[i-1].x+beta*path[i+1].x-(alpha+2*beta)*path[i].x
-                path[i].y+=alpha*path_nodes[i].y+beta*path[i-1].y+beta*path[i+1].y-(alpha+2*beta)*path[i].y
-            blocked = is_occluded(self.graph_.map_.image_, [path[i].x, path[i].y], [path[i+1].x, path[i+1].y])
-            
-        
-
+                path[i].x=path_smooth[i].x
+                path[i].y=path_smooth[i].y
+                path_smooth[i].x+=alpha*path_nodes[i].x+beta*path[i-1].x+beta*path[i+1].x-(alpha+2*beta)*path[i].x
+                path_smooth[i].y+=alpha*path_nodes[i].y+beta*path[i-1].y+beta*path[i+1].y-(alpha+2*beta)*path[i].y
+            blocked *= is_occluded(self.graph_.map_.image_, [path[i].x, path[i].y], [path[i+1].x, path[i+1].y])
+            e=0
+            for i in range(1,len(path)-1):
+                e+=(path[i].x-path_smooth[i].x)**2+(path[i].y-path_smooth[i].y)**2
         return path
 
 
