@@ -227,16 +227,20 @@ class Graph:
         # Create nodes
         # hint: it will be similar to the create_grid method
 
-        #########################
-        ## YOUR CODE GOES HERE ##
-        #########################
+        idx = 0
+        for x in xrange(self.map_.min_x_, self.map_.max_x_-1, self.grid_step_size_):
+            for y in xrange(self.map_.min_y_, self.map_.max_y_-1, self.grid_step_size_):
 
+                if rospy.is_shutdown():
+                    return
 
+                # Check if it is occupied
+                occupied = self.map_.is_occupied(x,y)
 
-
-
-
-
+                # Create the node
+                if not occupied:
+                    self.nodes_.append(Node(x,y,idx))
+                    idx = idx + 1
 
 
         # Create edges

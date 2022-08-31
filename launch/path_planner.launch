@@ -13,7 +13,7 @@
     
     <!-- tunable parameters -->
     <param name="heuristic_weight" type="double" value="0.1"/>
-    <param name="use_prm" type="bool" value="false"/>
+    <param name="use_prm" type="bool" value="true"/>
     <param name="grid_step_size" type="int" value="10"/>
     <!-- <param name="grid_step_size" type="int" value="4"/> -->
     <param name="prm_num_nodes" type="int" value="500"/>    
