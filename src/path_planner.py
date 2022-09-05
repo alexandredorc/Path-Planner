@@ -226,21 +226,20 @@ class Graph:
         
         # Create nodes
         # hint: it will be similar to the create_grid method
+  
+        while idx<num_nodes:
+            x=random.randint(self.map_.min_x_, self.map_.max_x_-1)
+            y=random.randint(self.map_.min_y_, self.map_.max_y_-1)
+            if rospy.is_shutdown():
+                return
+        
+            # Check if it is occupied   
 
-        idx = 0
-        for x in xrange(self.map_.min_x_, self.map_.max_x_-1, self.grid_step_size_):
-            for y in xrange(self.map_.min_y_, self.map_.max_y_-1, self.grid_step_size_):
-
-                if rospy.is_shutdown():
-                    return
-
-                # Check if it is occupied
-                occupied = self.map_.is_occupied(x,y)
-
+            occupied = self.map_.is_occupied(x,y)
                 # Create the node
-                if not occupied:
-                    self.nodes_.append(Node(x,y,idx))
-                    idx = idx + 1
+            if not occupied:
+                self.nodes_.append(Node(x,y,idx))
+                idx = idx + 1
 
 
         # Create edges
@@ -255,7 +254,7 @@ class Graph:
             for node_j in self.nodes_:
 
                 # Don't create edges to itself
-                if node_i != node_j:
+                if node_i != node_j: 
 
                     # Check if the nodes are close to each other
                     distance = node_i.distance_to(node_j)
@@ -615,16 +614,22 @@ class PathSmoother():
         # In each iteration, update every waypoint except the first and last waypoint
         e=1
         blocked=True
-        while e>0.001 or blocked:
+        while e>0.001 :
+            e=0
             for i in range(1,len(path)-1):
                 path[i].x=path_smooth[i].x
                 path[i].y=path_smooth[i].y
                 path_smooth[i].x+=alpha*path_nodes[i].x+beta*path[i-1].x+beta*path[i+1].x-(alpha+2*beta)*path[i].x
                 path_smooth[i].y+=alpha*path_nodes[i].y+beta*path[i-1].y+beta*path[i+1].y-(alpha+2*beta)*path[i].y
-            blocked *= is_occluded(self.graph_.map_.image_, [path[i].x, path[i].y], [path[i+1].x, path[i+1].y])
-            e=0
-            for i in range(1,len(path)-1):
+                
+                blocked = is_occluded(self.graph_.map_.image_, [path[i].x, path[i].y], [path[i+1].x, path[i+1].y])
+                if blocked:
+                    
+                    path_smooth[i].x=path[i].x
+                    path_smooth[i].y=path[i].y
+
                 e+=(path[i].x-path_smooth[i].x)**2+(path[i].y-path_smooth[i].y)**2
+            print(e)
         return path
 
 
