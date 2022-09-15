@@ -175,8 +175,8 @@ class Graph:
 
         # Create nodes
         idx = 0
-        for x in xrange(self.map_.min_x_, self.map_.max_x_-1, self.grid_step_size_):
-            for y in xrange(self.map_.min_y_, self.map_.max_y_-1, self.grid_step_size_):
+        for x in range(self.map_.min_x_, self.map_.max_x_-1, self.grid_step_size_):
+            for y in range(self.map_.min_y_, self.map_.max_y_-1, self.grid_step_size_):
 
                 if rospy.is_shutdown():
                     return
@@ -274,7 +274,7 @@ class Graph:
         best_dist = 999999999 # A large number to begin with
         best_index = None # Index of best node found so far
 
-        for i in xrange(len(self.nodes_)):
+        for i in range(len(self.nodes_)):
             newdist=(self.nodes_[i].x-xy[0])**2+(self.nodes_[i].y-xy[1])**2
             if best_dist>newdist:
                 best_dist=newdist
@@ -282,7 +282,7 @@ class Graph:
 
 
 
-            pass # you can remove this line after you have filled in the above code
+             # you can remove this line after you have filled in the above code
 
         return best_index
 
@@ -505,15 +505,13 @@ class GraphSearch:
             if self.goal_idx_==node_idx:
                 rospy.loginfo("Goal found!")
                 return
-
             # For each neighbour of the node
-            for neighbour_idx in xrange(len(self.graph_.nodes_[node_idx].neighbours)):
+            for neighbour_idx in range(len(self.graph_.nodes_[node_idx].neighbours)):
 
                 # For convenience, extract the neighbour and the edge cost from the arrays
                 neighbour = self.graph_.nodes_[node_idx].neighbours[neighbour_idx]  
                 neighbour_cost = self.graph_.nodes_[node_idx].neighbour_costs[neighbour_idx]
-                #print(neighbour_cost)
-                #print(node_idx)
+
                 # Check if neighbours is already in visited
                 if neighbour.idx in visited_set:
                     
@@ -526,8 +524,8 @@ class GraphSearch:
                     # hint: cost = cost-of-previous-node + cost-of-edge + self.heuristic_weight_ * A*-heuristic-score
                     # hint: implement it without the heuristic-score first. once this is working, add the heuristic score.
                     # hint: neighbour.distance_to() function is likely to be helpful for the heuristic-score
-                    cost= neighbour_cost+(self.heuristic_weight_*neighbour.distance_to(self.graph_.nodes_[goal_idx]))
-                    
+                    cost=  self.graph_.nodes_[node_idx].cost*0.9+ neighbour_cost+(self.heuristic_weight_*neighbour.distance_to(self.graph_.nodes_[goal_idx]))
+                
                     # Check if neighbours is already in unvisited set
                     if neighbour.idx in unvisited_set:
 
@@ -538,7 +536,6 @@ class GraphSearch:
                         if cost < neighbour.cost :
                             neighbour.parent_node = self.graph_.nodes_[node_idx]
                             neighbour.cost = cost
-
 
                     else:
 
@@ -562,7 +559,7 @@ class GraphSearch:
         # There's more efficient ways of doing this...
         min_cost = 99999999
         min_idx = None
-        for idx in xrange(len(unvisited_set)):
+        for idx in range(len(unvisited_set)):
             cost = self.graph_.nodes_[unvisited_set[idx]].cost
             if cost < min_cost:
                 min_cost = cost
@@ -579,8 +576,11 @@ class GraphSearch:
         while current.parent_node.cost != 0:
             current=current.parent_node
             path.append(current)
-        
-        return path
+        path.append(current.parent_node)
+        final_path=[]
+        for i in range(0,len(path)):
+            final_path.append(path[len(path)-i-1])
+        return final_path
 
 
     def visualise_search(self, visited_set, unvisited_set, start_idx, goal_idx):
@@ -622,17 +622,15 @@ class PathSmoother():
                 path_smooth[i].x+=alpha*path_nodes[i].x+beta*path[i-1].x+beta*path[i+1].x-(alpha+2*beta)*path[i].x
                 path_smooth[i].y+=alpha*path_nodes[i].y+beta*path[i-1].y+beta*path[i+1].y-(alpha+2*beta)*path[i].y
                 
-                blocked = is_occluded(self.graph_.map_.image_, [path[i].x, path[i].y], [path[i+1].x, path[i+1].y])
+                blocked = is_occluded(self.graph_.map_.image_, [path[i-1].x, path[i-1].y], [path[i].x, path[i].y])
+                blocked += is_occluded(self.graph_.map_.image_, [path[i].x, path[i].y], [path[i+1].x, path[i+1].y])
                 if blocked:
-                    
                     path_smooth[i].x=path[i].x
                     path_smooth[i].y=path[i].y
 
+                
                 e+=(path[i].x-path_smooth[i].x)**2+(path[i].y-path_smooth[i].y)**2
-            print(e)
         return path
-
-
 
 
 
