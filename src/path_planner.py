@@ -524,7 +524,7 @@ class GraphSearch:
                     # hint: cost = cost-of-previous-node + cost-of-edge + self.heuristic_weight_ * A*-heuristic-score
                     # hint: implement it without the heuristic-score first. once this is working, add the heuristic score.
                     # hint: neighbour.distance_to() function is likely to be helpful for the heuristic-score
-                    cost=  self.graph_.nodes_[node_idx].cost*0.9+ neighbour_cost+(self.heuristic_weight_*neighbour.distance_to(self.graph_.nodes_[goal_idx]))
+                    cost=  self.graph_.nodes_[node_idx].cost+ neighbour_cost+(self.heuristic_weight_*neighbour.distance_to(self.graph_.nodes_[goal_idx]))
                 
                     # Check if neighbours is already in unvisited set
                     if neighbour.idx in unvisited_set:
@@ -547,10 +547,11 @@ class GraphSearch:
 
                         neighbour.parent_node = self.graph_.nodes_[node_idx]
                         neighbour.cost = cost
-
+            
             # Visualise the current search status in RVIZ
             self.visualise_search(visited_set, unvisited_set, start_idx, goal_idx)
             #rospy.sleep(0.1) # Pause for easier visualisation
+        
                    
 
     def get_minimum_cost_node(self, unvisited_set):
@@ -572,10 +573,9 @@ class GraphSearch:
         path = []
 
         current = self.graph_.nodes_[goal_idx]
-        path.append(current)
         while current.parent_node.cost != 0:
-            current=current.parent_node
             path.append(current)
+            current=current.parent_node
         path.append(current.parent_node)
         final_path=[]
         for i in range(0,len(path)):
